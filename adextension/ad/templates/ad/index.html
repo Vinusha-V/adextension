@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("{% static 'rm309-adj-05.jpg' %}");
+            background-size: cover; /* Adjust this based on your needs */
+            background-repeat: no-repeat;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <div style="width: 208px; height: 72px; display: flex; align-items: center;">
+            <div style="width: 41px; height: 72px; text-align: center; color: #8200A3; font-size: 64px; font-family: Poppins; font-weight: 600; word-wrap: break-word; align-self: center;">U</div>
+            <div style="display: flex; flex-direction: column; justify-content: flex-start; align-self: flex-start; margin-left: 0px;">
+                <div style="color: black; font-size: 24px; font-family: Poppins; font-weight: 600; word-wrap: break-word; align-self: flex-start; margin-top: 10px;">PGRADE</div>
+                <div style="color: black; font-size: 24px; font-family: Poppins; font-weight: 600; word-wrap: break-word; align-self: flex-start; margin-top: -2px;">RL</div>
+            </div>
+        </div>
+        
+        
+        <div style="width: 1582px; height: 240px; text-align: center"><span style="color: #8200A3; font-size: 96px; font-family: Poppins; font-weight: 600; line-height: 99.84px; word-wrap: break-word">TRANSFORM</span><span style="color: black; font-size: 96px; font-family: Poppins; font-weight: 600; line-height: 99.84px; word-wrap: break-word"> YOUR WEBSITE<br/>WITH NEW FEATURES</span></div>
+        <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 20px;">
+            <div style="width: 1012px; text-align: center; color: black; font-size: 32px; font-family: Poppins; font-weight: 400; line-height: 33.28px; word-wrap: break-word;">upgrade your website just by pasting your URL below</div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <input type="text" id="urlInput" name="urlInput" required 
+                    style="width: 778px; height: 57px; background: #EBEBEB; box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 20px; text-align: center; color: #979797; font-size: 24px; font-family: Poppins; font-weight: 400; line-height: 24.96px; margin-bottom: 20px;" 
+                    placeholder="enter your URL">
+     
+
+                <div style="width: 179px; height: 57px; background: linear-gradient(180deg, #8200A3 0%, #8C3FA0 0%, #743F82 100%); box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 20px;">
+                    <input type="submit" value="Check" style="width: 100%; height: 100%; background: transparent; border: none; color: white; font-size: 24px; font-family: Poppins; font-weight: 600; line-height: 24.96px;" onclick="checkURL()">
+                </div>
+
+                <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+                    <div style="width: 1302px; height: 300px; background: #EBEBEB; box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 20px; border: 1px #979797 solid; text-align: center; color: black; font-size: 32px; font-family: Poppins; font-weight: 400; line-height: 33.28px; word-wrap: break-word;">
+                        <div id="placeholders" style="display: block; margin-top: 10px;">
+                            <div style="width: 41px; text-align: center; color: #8200A3; font-size: 48px; font-family: Poppins; font-weight: 600; word-wrap: break-word; display: inline-block; margin-top: 0;">U</div>
+                            <div style="width: 213px; height: 32px; text-align: left; color: #979797; font-size: 24px; font-family: Poppins; font-weight: 400; line-height: 24.96px; word-wrap: break-word; display: inline-block; margin-top: 0;">generating...</div>
+                        </div>
+                        
+                        {% if pred|length > 1 %}
+                        <p>Model Predictions:</p>
+                        {% for item in pred %}
+                            <p>{{ item }}</p>
+                        {% endfor %}
+                        {% else %}
+                        <p>Model Prediction:</p>
+                        <p>{{ pred.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                
+                </div>
+                
+
+    <script>
+            function checkURL() {
+                        // Hide the placeholders and show the results
+                        document.getElementById("placeholders").style.display = "none";
+                        document.getElementById("result").style.display = "block";
+        document.getElementById("urlForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const urlInput = document.getElementById("urlInput").value;
+            const responseList = document.getElementById("responseList");
+
+            // Clear previous results
+            responseList.innerHTML = "";
+
+            // Make an AJAX request to your Django server
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/", true); // Use POST method and specify the correct URL
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+
+                    if (Array.isArray(response)) {
+                        response.forEach(function(item) {
+                            const listItem = document.createElement("li");
+                            listItem.textContent = item;
+                            responseList.appendChild(listItem);
+                        });
+                    } else {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = "No prediction result received.";
+                        responseList.appendChild(listItem);
+                    }
+                } else {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = "Error: Unable to fetch prediction. Status code: " + xhr.status;
+                    responseList.appendChild(listItem);
+                }
+            };
+
+            xhr.send("urlInput=" + urlInput); // Send the input data in the request
+
+            // Prevent the form from performing a default submission
+            return false;
+        });
+    }
+    </script>
+
+</body>
+</html>
+
+
+</html>
